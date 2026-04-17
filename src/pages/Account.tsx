@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
+import { LogOut, Heart, ArrowRight } from "lucide-react";
+import { useFavorites } from "@/hooks/useFavorites";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
