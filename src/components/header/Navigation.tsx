@@ -1,6 +1,7 @@
-import { ArrowRight, X, Minus, Plus } from "lucide-react";
+import { ArrowRight, X, Minus, Plus, User } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import ShoppingBag from "./ShoppingBag";
@@ -18,6 +19,8 @@ interface CartItem {
 }
 
 const Navigation = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [offCanvasType, setOffCanvasType] = useState<'favorites' | null>(null);
@@ -206,6 +209,13 @@ const Navigation = () => {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
+          </button>
+          <button 
+            className="hidden lg:block p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
+            aria-label="Account"
+            onClick={() => navigate(user ? "/account" : "/auth")}
+          >
+            <User className="w-5 h-5" strokeWidth={1.5} />
           </button>
           <button 
             className="hidden lg:block p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
