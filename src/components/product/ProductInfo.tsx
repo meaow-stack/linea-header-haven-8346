@@ -10,8 +10,14 @@ import {
   BreadcrumbSeparator 
 } from "@/components/ui/breadcrumb";
 import { Minus, Plus } from "lucide-react";
+import FavoriteButton from "@/components/favorites/FavoriteButton";
+import pantheonImage from "@/assets/pantheon.jpg";
 
-const ProductInfo = () => {
+interface ProductInfoProps {
+  productId?: string;
+}
+
+const ProductInfo = ({ productId = "1" }: ProductInfoProps) => {
   const [quantity, setQuantity] = useState(1);
 
   const incrementQuantity = () => setQuantity(prev => prev + 1);
@@ -105,11 +111,24 @@ const ProductInfo = () => {
           </div>
         </div>
 
-        <Button 
-          className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none"
-        >
-          Add to Bag
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            className="flex-1 h-12 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none"
+          >
+            Add to Bag
+          </Button>
+          <FavoriteButton
+            variant="detail"
+            product={{
+              product_id: productId,
+              product_name: "Pantheon",
+              product_category: "Earrings",
+              product_price: "€2,850",
+              product_image: pantheonImage,
+            }}
+            className="rounded-none shrink-0"
+          />
+        </div>
       </div>
     </div>
   );
