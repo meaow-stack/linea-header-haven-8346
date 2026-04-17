@@ -51,17 +51,19 @@ This project focuses on a clean UI, seamless shopping experience, and persistent
 ---
 
 ## 📂 Project Structure
+
 ```
+.
 ├── public/
 ├── src/
-│ ├── components/
-│ ├── pages/
-│ ├── hooks/
-│ ├── context/
-│ ├── utils/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   ├── context/
+│   ├── utils/
 │
-├── supabase/ # Supabase configuration
-├── .env # Environment variables
+├── supabase/
+├── .env
 ├── index.html
 ├── package.json
 ├── vite.config.ts
@@ -69,6 +71,8 @@ This project focuses on a clean UI, seamless shopping experience, and persistent
 ├── postcss.config.js
 ├── tsconfig.json
 ```
+
+---
 
 ## ⚙️ Installation & Setup
 
@@ -84,3 +88,49 @@ npm install
 
 # Run development server
 npm run dev
+```
+
+---
+
+## 🔐 Environment Variables
+
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_key
+```
+
+---
+
+## 📸 Screens Overview
+
+- Landing page with hero section  
+- Product listing grid  
+- Shopping cart & checkout flow  
+- Footer with company details and navigation  
+
+---
+
+## 🔮 Future Improvements
+
+- Payment gateway integration (Stripe/Razorpay)  
+- Order history for users  
+- Admin dashboard (product management)  
+- Wishlist functionality  
+- Product filtering & search  
+- Mobile performance optimization  
+
+---
+
+## 📌 Use Cases
+
+- E-commerce frontend project  
+- Portfolio-ready React project  
+- UI/UX showcase for luxury brand design  
+- Learning full-stack integration with Supabase  
+
+---
+
+## 🌐 Live Demo
+
+👉 Visit the website:  
+https://linea-header-haven-8346.vercel.app/
