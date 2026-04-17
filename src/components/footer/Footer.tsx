@@ -18,12 +18,12 @@ const Footer = () => {
             <div className="space-y-2 text-sm font-light text-black/70">
               <div>
                 <p className="font-normal text-black mb-1">Visit Us</p>
-                <p>123 Madison Avenue</p>
-                <p>New York, NY 10016</p>
+                <p>South City mall</p>
+                <p>Kolkata</p>
               </div>
               <div>
                 <p className="font-normal text-black mb-1 mt-3">Contact</p>
-                <p>+1 (212) 555-0123</p>
+                <p>+91 9064183788</p>
                 <p>hello@lineajewelry.com</p>
               </div>
             </div>
@@ -74,7 +74,7 @@ const Footer = () => {
           <p className="text-sm font-light text-black mb-1 md:mb-0">
             © 2024 Linea. All rights reserved. Template made by{" "}
             <a href="https://www.liljeros.co" target="_blank" rel="noopener noreferrer" className="hover:text-black/70 transition-colors underline">
-              Rickard Liljeros
+              Sayantan Mukherjee
             </a>
           </p>
           <div className="flex space-x-6">
