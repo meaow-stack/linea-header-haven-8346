@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { useNavigate, Navigate, Link } from "react-router-dom";
+import { LogOut, Heart, ArrowRight } from "lucide-react";
+import { useFavorites } from "@/hooks/useFavorites";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -121,8 +123,13 @@ const Account = () => {
         <Tabs defaultValue="orders" className="w-full">
           <TabsList>
             <TabsTrigger value="orders">Order history</TabsTrigger>
+            <TabsTrigger value="favorites">Favorites</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="favorites" className="mt-6">
+            <AccountFavorites />
+          </TabsContent>
 
           <TabsContent value="orders" className="mt-6 space-y-4">
             {mockOrders.map((order) => (
@@ -206,6 +213,72 @@ const Account = () => {
         </Tabs>
       </main>
       <Footer />
+    </div>
+  );
+};
+
+const AccountFavorites = () => {
+  const { favorites, loading, removeFavorite } = useFavorites();
+
+  if (loading) return <p className="text-sm text-muted-foreground">Loading...</p>;
+
+  if (favorites.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center text-center py-16 px-6">
+          <div className="h-14 w-14 rounded-full bg-muted/40 flex items-center justify-center mb-5">
+            <Heart className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
+          </div>
+          <h3 className="text-base font-light tracking-wide mb-2">No favorites yet</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+            Tap the heart on any piece to save it to your favorites.
+          </p>
+          <Button asChild variant="outline">
+            <Link to="/category/shop">Browse the collection</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-muted-foreground">
+          {favorites.length} {favorites.length === 1 ? "item" : "items"} saved
+        </p>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/favorites">
+            View all
+            <ArrowRight className="ml-1 h-3 w-3" />
+          </Link>
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {favorites.slice(0, 8).map((fav) => (
+          <div key={fav.id} className="group relative">
+            <Link to={`/product/${fav.product_id}`} className="block">
+              <div className="aspect-square mb-2 overflow-hidden bg-muted/10 relative">
+                {fav.product_image && (
+                  <img src={fav.product_image} alt={fav.product_name} className="w-full h-full object-cover" />
+                )}
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeFavorite(fav.product_id); }}
+                  aria-label="Remove from favorites"
+                  className="absolute top-2 right-2 h-8 w-8 flex items-center justify-center rounded-full bg-background/90 backdrop-blur-sm hover:bg-background opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+                >
+                  <Heart className="h-3.5 w-3.5 fill-foreground text-foreground" strokeWidth={1.5} />
+                </button>
+              </div>
+              <p className="text-xs font-medium truncate">{fav.product_name}</p>
+              {fav.product_price && (
+                <p className="text-xs font-light text-muted-foreground">{fav.product_price}</p>
+              )}
+            </Link>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

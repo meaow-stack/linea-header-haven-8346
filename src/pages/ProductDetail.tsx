@@ -51,7 +51,7 @@ const ProductDetail = () => {
             <ProductImageGallery />
             
             <div className="lg:pl-12 mt-8 lg:mt-0 lg:sticky lg:top-6 lg:h-fit">
-              <ProductInfo />
+              <ProductInfo productId={productId ?? "1"} />
               <ProductDescription />
             </div>
           </div>

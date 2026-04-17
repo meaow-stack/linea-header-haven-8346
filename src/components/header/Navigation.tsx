@@ -2,9 +2,11 @@ import { ArrowRight, X, Minus, Plus, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useFavorites } from "@/hooks/useFavorites";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import ShoppingBag from "./ShoppingBag";
+import FavoritesDrawer from "@/components/favorites/FavoritesDrawer";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
 import haloImage from "@/assets/halo.jpg";
@@ -21,6 +23,7 @@ interface CartItem {
 const Navigation = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { count: favoritesCount } = useFavorites();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [offCanvasType, setOffCanvasType] = useState<'favorites' | null>(null);
@@ -218,13 +221,18 @@ const Navigation = () => {
             <User className="w-5 h-5" strokeWidth={1.5} />
           </button>
           <button 
-            className="hidden lg:block p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
-            aria-label="Favorites"
+            className="hidden lg:block p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200 relative"
+            aria-label={`Favorites${favoritesCount > 0 ? ` (${favoritesCount})` : ''}`}
             onClick={() => setOffCanvasType('favorites')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
             </svg>
+            {favoritesCount > 0 && (
+              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-foreground text-background text-[0.6rem] font-medium flex items-center justify-center pointer-events-none">
+                {favoritesCount}
+              </span>
+            )}
           </button>
           <button 
             className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200 relative"
@@ -395,38 +403,11 @@ const Navigation = () => {
         }}
       />
       
-      {/* Favorites Off-canvas overlay */}
-      {offCanvasType === 'favorites' && (
-        <div className="fixed inset-0 z-50 h-screen">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/50 h-screen"
-            onClick={() => setOffCanvasType(null)}
-          />
-          
-          {/* Off-canvas panel */}
-          <div className="absolute right-0 top-0 h-screen w-96 bg-background border-l border-border animate-slide-in-right flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-lg font-light text-foreground">Your Favorites</h2>
-              <button
-                onClick={() => setOffCanvasType(null)}
-                className="p-2 text-foreground hover:text-muted-foreground transition-colors"
-                aria-label="Close"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            
-            {/* Content */}
-            <div className="p-6">
-              <p className="text-muted-foreground text-sm mb-6">
-                You haven't added any favorites yet. Browse our collection and click the heart icon to save items you love.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Favorites Drawer */}
+      <FavoritesDrawer
+        isOpen={offCanvasType === 'favorites'}
+        onClose={() => setOffCanvasType(null)}
+      />
     </nav>
   );
 };
