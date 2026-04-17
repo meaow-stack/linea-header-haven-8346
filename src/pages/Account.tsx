@@ -121,8 +121,13 @@ const Account = () => {
         <Tabs defaultValue="orders" className="w-full">
           <TabsList>
             <TabsTrigger value="orders">Order history</TabsTrigger>
+            <TabsTrigger value="favorites">Favorites</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="favorites" className="mt-6">
+            <AccountFavorites />
+          </TabsContent>
 
           <TabsContent value="orders" className="mt-6 space-y-4">
             {mockOrders.map((order) => (
