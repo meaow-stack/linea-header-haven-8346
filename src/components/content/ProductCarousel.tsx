@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import FavoriteButton from "@/components/favorites/FavoriteButton";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
 import haloImage from "@/assets/halo.jpg";
@@ -103,6 +104,15 @@ const ProductCarousel = () => {
                             NEW
                           </div>
                         )}
+                        <FavoriteButton
+                          product={{
+                            product_id: String(product.id),
+                            product_name: product.name,
+                            product_category: product.category,
+                            product_price: product.price,
+                            product_image: product.image,
+                          }}
+                        />
                       </div>
                      <div className="space-y-1">
                        <p className="text-sm font-light text-foreground">
