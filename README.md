@@ -1,73 +1,86 @@
-# Welcome to your Lovable project
+# 💎 LINEA - Jewelry Store Website
 
-## Project info
+A modern, minimalistic **e-commerce jewelry website** built with React and Vite.  
+This project focuses on a clean UI, seamless shopping experience, and persistent cart/checkout functionality.
 
-**URL**: https://lovable.dev/projects/a8e59680-e4fc-4735-a797-36af2f7e2875
+---
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+### 🛍️ Shopping Experience
+- Browse products by categories (Rings, Earrings, Bracelets, Necklaces)
+- “New In” collection showcase
+- Clean product grid with pricing
+- Minimal luxury-inspired UI design
 
-**Use Lovable**
+### 🛒 Shopping Mode
+- Add products to cart
+- Persistent cart state (does not reset on refresh)
+- Smooth checkout flow
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a8e59680-e4fc-4735-a797-36af2f7e2875) and start prompting.
+### 💳 Checkout System
+- Dedicated checkout page
+- Order summary with pricing
+- Ready for payment integration (extensible)
 
-Changes made via Lovable will be committed automatically to this repo.
+### 👤 Authentication
+- User sign-in functionality
+- Account-based shopping flow
+- Backend-ready auth system (via Supabase)
 
-**Use your preferred IDE**
+### 🔄 State Persistence
+- Cart and session persistence
+- Maintains user flow across navigation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 🎨 UI/UX
+- Fully responsive layout
+- Modern typography and spacing
+- Clean, premium aesthetic (inspired by luxury brands)
+- Smooth navigation and transitions
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🛠️ Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend:** React + Vite  
+- **Styling:** Tailwind CSS  
+- **Backend / Auth / DB:** Supabase  
+- **State Management:** React Hooks / Context API  
+- **Build Tool:** Vite  
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## 📂 Project Structure
+```
+├── public/
+├── src/
+│ ├── components/
+│ ├── pages/
+│ ├── hooks/
+│ ├── context/
+│ ├── utils/
+│
+├── supabase/ # Supabase configuration
+├── .env # Environment variables
+├── index.html
+├── package.json
+├── vite.config.ts
+├── tailwind.config.ts
+├── postcss.config.js
+├── tsconfig.json
 ```
 
-**Edit a file directly in GitHub**
+## ⚙️ Installation & Setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# Clone the repository
+git clone https://github.com/your-username/linea-jewelry.git
 
-**Use GitHub Codespaces**
+# Navigate to project folder
+cd linea-jewelry
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Install dependencies
+npm install
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/a8e59680-e4fc-4735-a797-36af2f7e2875) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# Run development server
+npm run dev
