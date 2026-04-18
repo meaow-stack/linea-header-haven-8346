@@ -5,6 +5,7 @@ import ProductImageGallery from "../components/product/ProductImageGallery";
 import ProductInfo from "../components/product/ProductInfo";
 import ProductDescription from "../components/product/ProductDescription";
 import ProductCarousel from "../components/content/ProductCarousel";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,11 +14,47 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getProductById } from "@/data/products";
+import { useProduct, useProductsByCategory } from "@/hooks/useProducts";
 
 const ProductDetail = () => {
   const { productId } = useParams();
-  const product = getProductById(productId);
+  const { product, isLoading } = useProduct(productId);
+  const { products: related } = useProductsByCategory(product?.category, product?.id);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-6 px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Skeleton className="aspect-square w-full" />
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-10 w-2/3" />
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-12 px-6 text-center">
+          <h1 className="text-2xl font-light mb-4">Product not found</h1>
+          <Link to="/category/shop" className="text-sm underline">Browse the collection</Link>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   const categorySlug = product.category.toLowerCase();
 
   return (
@@ -26,7 +63,6 @@ const ProductDetail = () => {
 
       <main className="pt-6">
         <section className="w-full px-6">
-          {/* Breadcrumb - Show above image on smaller screens */}
           <div className="lg:hidden mb-6">
             <Breadcrumb>
               <BreadcrumbList>
@@ -43,7 +79,7 @@ const ProductDetail = () => {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{product.name}</BreadcrumbPage>
+                  <BreadcrumbPage className="line-clamp-1">{product.name}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -54,24 +90,16 @@ const ProductDetail = () => {
 
             <div className="lg:pl-12 mt-8 lg:mt-0 lg:sticky lg:top-6 lg:h-fit">
               <ProductInfo product={product} />
-              <ProductDescription />
+              <ProductDescription product={product} />
             </div>
           </div>
         </section>
 
-        <section className="w-full mt-16 lg:mt-24">
-          <div className="mb-4 px-6">
-            <h2 className="text-sm font-light text-foreground">You might also like</h2>
-          </div>
-          <ProductCarousel />
-        </section>
-
-        <section className="w-full">
-          <div className="mb-4 px-6">
-            <h2 className="text-sm font-light text-foreground">More {product.category}</h2>
-          </div>
-          <ProductCarousel />
-        </section>
+        {related.length > 0 && (
+          <section className="w-full mt-16 lg:mt-24">
+            <ProductCarousel products={related.slice(0, 8)} title="Customers also bought" />
+          </section>
+        )}
       </main>
 
       <Footer />

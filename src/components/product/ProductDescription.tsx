@@ -1,28 +1,51 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ReviewProduct from "./ReviewProduct";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
+import StarRating from "./StarRating";
+import { useReviews } from "@/hooks/useReviews";
+import { useAuth } from "@/hooks/useAuth";
+import { Product } from "@/data/products";
+import { formatDistanceToNow } from "date-fns";
 
-const CustomStar = ({ filled, className }: { filled: boolean; className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 20 20" 
-    fill="currentColor" 
-    className={`w-3 h-3 ${filled ? 'text-foreground' : 'text-muted-foreground/30'} ${className}`}
-  >
-    <path 
-      fillRule="evenodd" 
-      d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" 
-      clipRule="evenodd" 
-    />
-  </svg>
-);
+interface ProductDescriptionProps {
+  product: Product;
+}
 
-const ProductDescription = () => {
-  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+const ProductDescription = ({ product }: ProductDescriptionProps) => {
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isCareOpen, setIsCareOpen] = useState(false);
-  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(true);
+
+  const { user } = useAuth();
+  const { reviews, myReview, average, submit, remove, loading } = useReviews(String(product.id));
+
+  const [draftRating, setDraftRating] = useState(myReview?.rating ?? 0);
+  const [draftTitle, setDraftTitle] = useState(myReview?.title ?? "");
+  const [draftComment, setDraftComment] = useState(myReview?.comment ?? "");
+  const [submitting, setSubmitting] = useState(false);
+
+  const apiRating = product.rating?.rate ?? 0;
+  const apiCount = product.rating?.count ?? 0;
+  const combinedAverage =
+    reviews.length > 0 && apiCount > 0
+      ? (apiRating * apiCount + reviews.reduce((s, r) => s + r.rating, 0)) / (apiCount + reviews.length)
+      : average ?? apiRating;
+  const combinedCount = apiCount + reviews.length;
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (draftRating < 1) return;
+    setSubmitting(true);
+    const ok = await submit({ rating: draftRating, title: draftTitle, comment: draftComment });
+    setSubmitting(false);
+    if (ok && !myReview) {
+      // keep values, but hook will reload
+    }
+  };
 
   return (
     <div className="space-y-0 mt-8 border-t border-border">
@@ -31,26 +54,15 @@ const ProductDescription = () => {
         <Button
           variant="ghost"
           onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
-          className="w-full h-14 px-0 justify-between hover:bg-transparent font-light rounded-none"
+          className="w-full h-14 px-0 justify-between hover:bg-transparent font-light rounded-none text-left"
         >
-          <span>Description</span>
-          {isDescriptionOpen ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          <span className="text-sm uppercase tracking-[0.16em]">Description</span>
+          {isDescriptionOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
         {isDescriptionOpen && (
           <div className="pb-6 space-y-4">
             <p className="text-sm font-light text-muted-foreground leading-relaxed">
-              The Pantheon earrings embody architectural elegance with their clean, geometric design. 
-              Inspired by classical Roman architecture, these statement pieces feature a sophisticated 
-              interplay of curves and angles that catch and reflect light beautifully.
-            </p>
-            <p className="text-sm font-light text-muted-foreground leading-relaxed">
-              Each earring is meticulously crafted from premium sterling silver with an 18k gold 
-              plating, ensuring both durability and luxury. The minimalist aesthetic makes them 
-              perfect for both everyday wear and special occasions.
+              {product.description ?? "A considered piece designed to be worn every day, forever."}
             </p>
           </div>
         )}
@@ -63,65 +75,45 @@ const ProductDescription = () => {
           onClick={() => setIsDetailsOpen(!isDetailsOpen)}
           className="w-full h-14 px-0 justify-between hover:bg-transparent font-light rounded-none"
         >
-          <span>Product Details</span>
-          {isDetailsOpen ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          <span className="text-sm uppercase tracking-[0.16em]">Product Details</span>
+          {isDetailsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
         {isDetailsOpen && (
           <div className="pb-6 space-y-3">
             <div className="flex justify-between">
               <span className="text-sm font-light text-muted-foreground">SKU</span>
-              <span className="text-sm font-light text-foreground">LE-PTH-001</span>
+              <span className="text-sm font-light text-foreground">LE-{String(product.id).padStart(4, "0")}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm font-light text-muted-foreground">Collection</span>
-              <span className="text-sm font-light text-foreground">Architectural Series</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm font-light text-muted-foreground">Closure</span>
-              <span className="text-sm font-light text-foreground">Post and butterfly back</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm font-light text-muted-foreground">Hypoallergenic</span>
-              <span className="text-sm font-light text-foreground">Yes</span>
+              <span className="text-sm font-light text-muted-foreground">Category</span>
+              <span className="text-sm font-light text-foreground">{product.category}</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Care Instructions */}
+      {/* Care */}
       <div className="border-b border-border">
         <Button
           variant="ghost"
           onClick={() => setIsCareOpen(!isCareOpen)}
           className="w-full h-14 px-0 justify-between hover:bg-transparent font-light rounded-none"
         >
-          <span>Care & Cleaning</span>
-          {isCareOpen ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          <span className="text-sm uppercase tracking-[0.16em]">Care &amp; Cleaning</span>
+          {isCareOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
         {isCareOpen && (
-          <div className="pb-6 space-y-4">
+          <div className="pb-6 space-y-2">
             <ul className="space-y-2">
               <li className="text-sm font-light text-muted-foreground">• Clean with a soft, dry cloth after each wear</li>
               <li className="text-sm font-light text-muted-foreground">• Avoid contact with perfumes, lotions, and cleaning products</li>
-              <li className="text-sm font-light text-muted-foreground">• Store in the provided jewelry pouch when not wearing</li>
-              <li className="text-sm font-light text-muted-foreground">• Remove before swimming, exercising, or showering</li>
+              <li className="text-sm font-light text-muted-foreground">• Store in the provided pouch when not wearing</li>
             </ul>
-            <p className="text-sm font-light text-muted-foreground">
-              For professional cleaning, visit your local jeweler or contact our customer service team.
-            </p>
           </div>
         )}
       </div>
 
-      {/* Customer Reviews */}
+      {/* Reviews */}
       <div className="border-b border-border lg:mb-16">
         <Button
           variant="ghost"
@@ -129,84 +121,102 @@ const ProductDescription = () => {
           className="w-full h-14 px-0 justify-between hover:bg-transparent font-light rounded-none"
         >
           <div className="flex items-center gap-3">
-            <span>Customer Reviews</span>
-            <div className="flex items-center">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <CustomStar
-                  key={star}
-                  filled={star <= 4.8}
-                />
-              ))}
-              <span className="text-sm font-light text-muted-foreground ml-1">4.8</span>
-            </div>
+            <span className="text-sm uppercase tracking-[0.16em]">Customer Reviews</span>
+            {combinedCount > 0 && (
+              <StarRating rating={combinedAverage} count={combinedCount} showValue />
+            )}
           </div>
-          {isReviewsOpen ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          {isReviewsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
         {isReviewsOpen && (
-          <div className="pb-6 space-y-6">
-            {/* Review Product Button */}
-            <ReviewProduct />
-
-            {/* Reviews List */}
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <CustomStar
-                        key={star}
-                        filled={true}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm font-light text-muted-foreground">Sarah M.</span>
-                </div>
-                <p className="text-sm font-light text-muted-foreground leading-relaxed">
-                  "Absolutely stunning earrings! The quality is exceptional and they go with everything. 
-                  The architectural design is so unique and I get compliments every time I wear them."
+          <div className="pb-8 space-y-8">
+            {/* Write a review */}
+            <div className="bg-muted/40 dark:bg-muted/20 p-5 space-y-3">
+              <h4 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
+                {myReview ? "Update your review" : "Write a review"}
+              </h4>
+              {!user ? (
+                <p className="text-sm font-light text-muted-foreground">
+                  <Link to="/auth" className="underline">Sign in</Link> to leave a review.
                 </p>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <CustomStar
-                        key={star}
-                        filled={star <= 4}
-                      />
-                    ))}
+              ) : (
+                <form onSubmit={onSubmit} className="space-y-3">
+                  <StarRating
+                    rating={draftRating}
+                    interactive
+                    size="lg"
+                    onChange={setDraftRating}
+                  />
+                  <Input
+                    value={draftTitle}
+                    onChange={(e) => setDraftTitle(e.target.value)}
+                    placeholder="Review title (optional)"
+                    className="rounded-none bg-background"
+                  />
+                  <Textarea
+                    value={draftComment}
+                    onChange={(e) => setDraftComment(e.target.value)}
+                    placeholder="Share your thoughts..."
+                    rows={3}
+                    className="rounded-none bg-background"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="submit"
+                      size="sm"
+                      disabled={submitting || draftRating < 1}
+                      className="rounded-none font-light"
+                    >
+                      {submitting ? "Saving..." : myReview ? "Update review" : "Post review"}
+                    </Button>
+                    {myReview && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={remove}
+                        className="rounded-none font-light"
+                      >
+                        Delete
+                      </Button>
+                    )}
                   </div>
-                  <span className="text-sm font-light text-muted-foreground">Emma T.</span>
-                </div>
-                <p className="text-sm font-light text-muted-foreground leading-relaxed">
-                  "Beautiful craftsmanship and comfortable to wear all day. The gold plating has held up 
-                  perfectly after months of regular wear. Highly recommend!"
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <CustomStar
-                        key={star}
-                        filled={true}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm font-light text-muted-foreground">Jessica R.</span>
-                </div>
-                <p className="text-sm font-light text-muted-foreground leading-relaxed">
-                  "These earrings are a work of art. The minimalist design is elegant and sophisticated. 
-                  Perfect weight and the packaging was beautiful too."
-                </p>
-              </div>
+                </form>
+              )}
             </div>
+
+            {/* Reviews list */}
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading reviews...</p>
+            ) : reviews.length === 0 ? (
+              <p className="text-sm font-light text-muted-foreground">
+                No customer reviews yet. Be the first to share your thoughts.
+              </p>
+            ) : (
+              <div className="space-y-6">
+                {reviews.map((r) => (
+                  <div key={r.id} className="space-y-2 pb-6 border-b border-border last:border-b-0">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <StarRating rating={r.rating} />
+                        <span className="text-sm font-light text-foreground">
+                          {r.author_name ?? "Customer"}
+                        </span>
+                      </div>
+                      <span className="text-xs font-light text-muted-foreground">
+                        {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                    {r.title && <p className="text-sm font-medium text-foreground">{r.title}</p>}
+                    {r.comment && (
+                      <p className="text-sm font-light text-muted-foreground leading-relaxed">
+                        {r.comment}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

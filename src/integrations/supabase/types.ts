@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_category: string | null
+          product_id: string
+          product_image: string | null
+          product_name: string
+          product_price: number
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_category?: string | null
+          product_id: string
+          product_image?: string | null
+          product_name: string
+          product_price?: number
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_category?: string | null
+          product_id?: string
+          product_image?: string | null
+          product_name?: string
+          product_price?: number
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -43,6 +82,42 @@ export type Database = {
           product_image?: string | null
           product_name?: string
           product_price?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      product_reviews: {
+        Row: {
+          author_name: string | null
+          comment: string | null
+          created_at: string
+          id: string
+          product_id: string
+          rating: number
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id: string
+          rating: number
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          rating?: number
+          title?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
