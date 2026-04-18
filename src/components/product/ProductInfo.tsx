@@ -1,27 +1,29 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  Breadcrumb, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbList, 
-  BreadcrumbPage, 
-  BreadcrumbSeparator 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Minus, Plus } from "lucide-react";
 import FavoriteButton from "@/components/favorites/FavoriteButton";
-import pantheonImage from "@/assets/pantheon.jpg";
+import { Product } from "@/data/products";
+import { toast } from "@/hooks/use-toast";
 
 interface ProductInfoProps {
-  productId?: string;
+  product: Product;
 }
 
-const ProductInfo = ({ productId = "1" }: ProductInfoProps) => {
+const ProductInfo = ({ product }: ProductInfoProps) => {
   const [quantity, setQuantity] = useState(1);
+  const categorySlug = product.category.toLowerCase();
 
-  const incrementQuantity = () => setQuantity(prev => prev + 1);
-  const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
+  const incrementQuantity = () => setQuantity((prev) => prev + 1);
+  const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   return (
     <div className="space-y-6">
@@ -37,12 +39,12 @@ const ProductInfo = ({ productId = "1" }: ProductInfoProps) => {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/category/earrings">Earrings</Link>
+                <Link to={`/category/${categorySlug}`}>{product.category}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Pantheon</BreadcrumbPage>
+              <BreadcrumbPage>{product.name}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -50,50 +52,75 @@ const ProductInfo = ({ productId = "1" }: ProductInfoProps) => {
 
       {/* Product title and price */}
       <div className="space-y-2">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start gap-6">
           <div>
-            <p className="text-sm font-light text-muted-foreground mb-1">Earrings</p>
-            <h1 className="text-2xl md:text-3xl font-light text-foreground">Pantheon</h1>
+            <p className="text-xs uppercase tracking-[0.18em] font-light text-muted-foreground mb-2">
+              {product.category}
+            </p>
+            <h1 className="text-3xl md:text-4xl font-light tracking-wide text-foreground">
+              {product.name}
+            </h1>
           </div>
           <div className="text-right">
-            <p className="text-xl font-light text-foreground">€2,850</p>
+            <p className="text-xl font-light text-foreground whitespace-nowrap">{product.price}</p>
           </div>
         </div>
       </div>
 
       {/* Product details */}
-      <div className="space-y-4 py-4 border-b border-border">
-        <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Material</h3>
-          <p className="text-sm font-light text-muted-foreground">18k Gold Plated Sterling Silver</p>
-        </div>
-        
-        <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Dimensions</h3>
-          <p className="text-sm font-light text-muted-foreground">2.5cm x 1.2cm</p>
-        </div>
-        
-        <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Weight</h3>
-          <p className="text-sm font-light text-muted-foreground">4.2g per earring</p>
-        </div>
-        
-        <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Editor's notes</h3>
-          <p className="text-sm font-light text-muted-foreground italic">"A modern interpretation of classical architecture, these earrings bridge timeless elegance with contemporary minimalism."</p>
-        </div>
+      <div className="space-y-5 py-6 border-t border-b border-border">
+        {product.material && (
+          <div className="grid grid-cols-[120px_1fr] gap-4">
+            <h3 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
+              Material
+            </h3>
+            <p className="text-sm font-light text-foreground">{product.material}</p>
+          </div>
+        )}
+
+        {product.dimensions && (
+          <div className="grid grid-cols-[120px_1fr] gap-4">
+            <h3 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
+              Dimensions
+            </h3>
+            <p className="text-sm font-light text-foreground">{product.dimensions}</p>
+          </div>
+        )}
+
+        {product.weight && (
+          <div className="grid grid-cols-[120px_1fr] gap-4">
+            <h3 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
+              Weight
+            </h3>
+            <p className="text-sm font-light text-foreground">{product.weight}</p>
+          </div>
+        )}
+
+        {product.editorsNotes && (
+          <div className="grid grid-cols-[120px_1fr] gap-4">
+            <h3 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
+              Editor's notes
+            </h3>
+            <p className="text-sm font-light text-muted-foreground italic leading-relaxed">
+              "{product.editorsNotes}"
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Quantity and Add to Cart */}
       <div className="space-y-4">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-light text-foreground">Quantity</span>
+          <span className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
+            Quantity
+          </span>
           <div className="flex items-center border border-border">
             <Button
               variant="ghost"
               size="sm"
               onClick={decrementQuantity}
               className="h-10 w-10 p-0 hover:bg-transparent hover:opacity-50 rounded-none border-none"
+              aria-label="Decrease quantity"
             >
               <Minus className="h-4 w-4" />
             </Button>
@@ -105,6 +132,7 @@ const ProductInfo = ({ productId = "1" }: ProductInfoProps) => {
               size="sm"
               onClick={incrementQuantity}
               className="h-10 w-10 p-0 hover:bg-transparent hover:opacity-50 rounded-none border-none"
+              aria-label="Increase quantity"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -112,23 +140,32 @@ const ProductInfo = ({ productId = "1" }: ProductInfoProps) => {
         </div>
 
         <div className="flex gap-3">
-          <Button 
-            className="flex-1 h-12 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none"
+          <Button
+            onClick={() =>
+              toast({
+                title: "Added to bag",
+                description: `${quantity} × ${product.name}`,
+              })
+            }
+            className="flex-1 h-12 bg-foreground text-background hover:bg-foreground/90 font-light tracking-wide rounded-none"
           >
             Add to Bag
           </Button>
           <FavoriteButton
             variant="detail"
             product={{
-              product_id: productId,
-              product_name: "Pantheon",
-              product_category: "Earrings",
-              product_price: "€2,850",
-              product_image: pantheonImage,
+              product_id: String(product.id),
+              product_name: product.name,
+              product_category: product.category,
+              product_price: product.price,
+              product_image: product.image,
             }}
             className="rounded-none shrink-0"
           />
         </div>
+        <p className="text-xs font-light text-muted-foreground pt-1">
+          Complimentary shipping &amp; returns. Crafted to order in 2–3 weeks.
+        </p>
       </div>
     </div>
   );
