@@ -9,10 +9,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingBag } from "lucide-react";
 import FavoriteButton from "@/components/favorites/FavoriteButton";
+import StarRating from "@/components/product/StarRating";
 import { Product } from "@/data/products";
-import { toast } from "@/hooks/use-toast";
+import { useCart } from "@/hooks/useCart";
 
 interface ProductInfoProps {
   product: Product;
@@ -20,6 +21,7 @@ interface ProductInfoProps {
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
   const [quantity, setQuantity] = useState(1);
+  const { addItem } = useCart();
   const categorySlug = product.category.toLowerCase();
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
@@ -27,7 +29,6 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb - Show only on desktop */}
       <div className="hidden lg:block">
         <Breadcrumb>
           <BreadcrumbList>
@@ -44,71 +45,33 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{product.name}</BreadcrumbPage>
+              <BreadcrumbPage className="line-clamp-1">{product.name}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
 
-      {/* Product title and price */}
-      <div className="space-y-2">
+      <div className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.18em] font-light text-muted-foreground">
+          {product.category}
+        </p>
         <div className="flex justify-between items-start gap-6">
-          <div>
-            <p className="text-xs uppercase tracking-[0.18em] font-light text-muted-foreground mb-2">
-              {product.category}
-            </p>
-            <h1 className="text-3xl md:text-4xl font-light tracking-wide text-foreground">
-              {product.name}
-            </h1>
-          </div>
-          <div className="text-right">
-            <p className="text-xl font-light text-foreground whitespace-nowrap">{product.price}</p>
-          </div>
+          <h1 className="text-2xl md:text-3xl font-light tracking-wide text-foreground">
+            {product.name}
+          </h1>
+          <p className="text-xl font-light text-foreground whitespace-nowrap">{product.price}</p>
         </div>
-      </div>
-
-      {/* Product details */}
-      <div className="space-y-5 py-6 border-t border-b border-border">
-        {product.material && (
-          <div className="grid grid-cols-[120px_1fr] gap-4">
-            <h3 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
-              Material
-            </h3>
-            <p className="text-sm font-light text-foreground">{product.material}</p>
-          </div>
-        )}
-
-        {product.dimensions && (
-          <div className="grid grid-cols-[120px_1fr] gap-4">
-            <h3 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
-              Dimensions
-            </h3>
-            <p className="text-sm font-light text-foreground">{product.dimensions}</p>
-          </div>
-        )}
-
-        {product.weight && (
-          <div className="grid grid-cols-[120px_1fr] gap-4">
-            <h3 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
-              Weight
-            </h3>
-            <p className="text-sm font-light text-foreground">{product.weight}</p>
-          </div>
-        )}
-
-        {product.editorsNotes && (
-          <div className="grid grid-cols-[120px_1fr] gap-4">
-            <h3 className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
-              Editor's notes
-            </h3>
-            <p className="text-sm font-light text-muted-foreground italic leading-relaxed">
-              "{product.editorsNotes}"
-            </p>
-          </div>
+        {product.rating && (
+          <StarRating rating={product.rating.rate} count={product.rating.count} showValue size="md" />
         )}
       </div>
 
-      {/* Quantity and Add to Cart */}
+      {product.description && (
+        <p className="text-sm font-light text-muted-foreground leading-relaxed border-t border-b border-border py-6">
+          {product.description}
+        </p>
+      )}
+
       <div className="space-y-4">
         <div className="flex items-center gap-4">
           <span className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
@@ -142,13 +105,20 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         <div className="flex gap-3">
           <Button
             onClick={() =>
-              toast({
-                title: "Added to bag",
-                description: `${quantity} × ${product.name}`,
-              })
+              addItem(
+                {
+                  product_id: String(product.id),
+                  product_name: product.name,
+                  product_category: product.category,
+                  product_image: product.image,
+                  product_price: product.priceValue,
+                },
+                quantity,
+              )
             }
             className="flex-1 h-12 bg-foreground text-background hover:bg-foreground/90 font-light tracking-wide rounded-none"
           >
+            <ShoppingBag className="h-4 w-4 mr-2" strokeWidth={1.5} />
             Add to Bag
           </Button>
           <FavoriteButton

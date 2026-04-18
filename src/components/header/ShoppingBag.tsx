@@ -1,45 +1,31 @@
-import { X, Minus, Plus } from "lucide-react";
+import { X, Minus, Plus, ShoppingBag as BagIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
-  quantity: number;
-  category: string;
-}
+import { useCart } from "@/hooks/useCart";
 
 interface ShoppingBagProps {
   isOpen: boolean;
   onClose: () => void;
-  cartItems: CartItem[];
-  updateQuantity: (id: number, newQuantity: number) => void;
   onViewFavorites?: () => void;
 }
 
-const ShoppingBag = ({ isOpen, onClose, cartItems, updateQuantity, onViewFavorites }: ShoppingBagProps) => {
-  if (!isOpen) return null;
+const ShoppingBag = ({ isOpen, onClose, onViewFavorites }: ShoppingBagProps) => {
+  const { items, subtotal, updateQuantity, removeItem } = useCart();
 
-  const subtotal = cartItems.reduce((sum, item) => {
-    const price = parseFloat(item.price.replace('€', '').replace(',', ''));
-    return sum + (price * item.quantity);
-  }, 0);
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 h-screen">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 h-screen"
-        onClick={onClose}
-      />
-      
-      {/* Off-canvas panel */}
-      <div className="absolute right-0 top-0 h-screen w-96 bg-background border-l border-border animate-slide-in-right flex flex-col">
-        {/* Header */}
+      <div className="absolute inset-0 bg-foreground/40 dark:bg-background/60 backdrop-blur-sm h-screen" onClick={onClose} />
+
+      <div className="absolute right-0 top-0 h-screen w-full max-w-md bg-background border-l border-border animate-slide-in-right flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-light text-foreground">Shopping Bag</h2>
+          <div className="flex items-center gap-3">
+            <BagIcon className="h-5 w-5" strokeWidth={1.5} />
+            <h2 className="text-sm uppercase tracking-[0.18em] font-light text-foreground">
+              Shopping Bag {items.length > 0 && <span className="text-muted-foreground">({items.length})</span>}
+            </h2>
+          </div>
           <button
             onClick={onClose}
             className="p-2 text-foreground hover:text-muted-foreground transition-colors"
@@ -48,110 +34,133 @@ const ShoppingBag = ({ isOpen, onClose, cartItems, updateQuantity, onViewFavorit
             <X size={20} />
           </button>
         </div>
-        
-        {/* Content */}
-        <div className="flex-1 flex flex-col p-6">
-          {/* Mobile favorites toggle - only show on mobile */}
+
+        <div className="flex-1 flex flex-col p-6 overflow-hidden">
           {onViewFavorites && (
             <div className="md:hidden mb-6 pb-6 border-b border-border">
               <button
                 onClick={onViewFavorites}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-border rounded-lg text-nav-foreground hover:text-nav-hover hover:border-nav-hover transition-colors duration-200"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-border text-foreground hover:bg-muted/40 transition-colors duration-200"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                </svg>
-                <span className="text-sm font-light">View Favorites</span>
+                <span className="text-xs uppercase tracking-[0.14em] font-light">View Favorites</span>
               </button>
             </div>
           )}
-          
-          {cartItems.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-muted-foreground text-sm text-center">
-                Your shopping bag is empty.<br />
-                Continue shopping to add items to your bag.
+
+          {items.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <div className="h-16 w-16 rounded-full bg-muted/40 flex items-center justify-center mb-5">
+                <BagIcon className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
+              </div>
+              <p className="text-sm font-light text-foreground mb-2">Your bag is empty</p>
+              <p className="text-xs font-light text-muted-foreground mb-6 max-w-xs">
+                Discover pieces you'll keep forever.
               </p>
+              <Button asChild variant="outline" className="rounded-none font-light" onClick={onClose}>
+                <Link to="/category/shop">Browse the collection</Link>
+              </Button>
             </div>
           ) : (
             <>
-              {/* Cart items */}
-              <div className="flex-1 overflow-y-auto space-y-6 mb-6">
-                {cartItems.map((item) => (
+              <div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-6">
+                {items.map((item) => (
                   <div key={item.id} className="flex gap-4">
-                    <div className="w-20 h-20 bg-muted/10 rounded-lg overflow-hidden">
-                      <img 
-                        src={item.image} 
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="text-sm font-light text-muted-foreground">{item.category}</p>
-                          <h3 className="text-sm font-medium text-foreground">{item.name}</h3>
+                    <Link
+                      to={`/product/${item.product_id}`}
+                      onClick={onClose}
+                      className="w-20 h-20 bg-muted/40 dark:bg-muted/20 overflow-hidden flex items-center justify-center shrink-0"
+                    >
+                      {item.product_image && (
+                        <img
+                          src={item.product_image}
+                          alt={item.product_name}
+                          className="w-full h-full object-contain p-2"
+                        />
+                      )}
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-3 mb-2">
+                        <div className="min-w-0">
+                          {item.product_category && (
+                            <p className="text-[10px] uppercase tracking-[0.14em] font-light text-muted-foreground">
+                              {item.product_category}
+                            </p>
+                          )}
+                          <Link
+                            to={`/product/${item.product_id}`}
+                            onClick={onClose}
+                            className="text-sm font-light text-foreground line-clamp-2 hover:underline"
+                          >
+                            {item.product_name}
+                          </Link>
                         </div>
-                        <p className="text-sm font-light text-foreground">{item.price}</p>
+                        <p className="text-sm font-light text-foreground whitespace-nowrap">
+                          ${(item.product_price * item.quantity).toFixed(2)}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-2 mt-3">
+                      <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center border border-border">
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          <button
+                            onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
                             className="p-2 hover:bg-muted/50 transition-colors"
                             aria-label="Decrease quantity"
                           >
-                            <Minus size={14} />
+                            <Minus size={12} />
                           </button>
-                          <span className="px-3 py-2 text-sm font-light min-w-[40px] text-center">
+                          <span className="px-3 py-1 text-xs font-light min-w-[36px] text-center">
                             {item.quantity}
                           </span>
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          <button
+                            onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
                             className="p-2 hover:bg-muted/50 transition-colors"
                             aria-label="Increase quantity"
                           >
-                            <Plus size={14} />
+                            <Plus size={12} />
                           </button>
                         </div>
+                        <button
+                          onClick={() => removeItem(item.product_id)}
+                          className="text-xs font-light text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                        >
+                          Remove
+                        </button>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              
-              {/* Subtotal and checkout */}
-              <div className="border-t border-border pt-6 space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-light text-foreground">Subtotal</span>
-                  <span className="text-sm font-medium text-foreground">€{subtotal.toLocaleString('en-EU', { minimumFractionDigits: 2 })}</span>
+
+              <div className="border-t border-border pt-6 mt-6 space-y-4">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs uppercase tracking-[0.14em] font-light text-muted-foreground">
+                    Subtotal
+                  </span>
+                  <span className="text-base font-light text-foreground">
+                    ${subtotal.toFixed(2)}
+                  </span>
                 </div>
-                
-                <p className="text-xs text-muted-foreground">
-                  Shipping and taxes calculated at checkout
+
+                <p className="text-[11px] font-light text-muted-foreground">
+                  Shipping and taxes calculated at checkout.
                 </p>
-                
-                <Button 
-                  asChild 
-                  className="w-full rounded-none" 
+
+                <Button
+                  asChild
+                  className="w-full rounded-none font-light tracking-wide bg-foreground text-background hover:bg-foreground/90"
                   size="lg"
                   onClick={onClose}
                 >
-                  <Link to="/checkout">
-                    Proceed to Checkout
-                  </Link>
+                  <Link to="/checkout">Proceed to Checkout</Link>
                 </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full rounded-none" 
-                  size="lg"
+
+                <Button
+                  variant="ghost"
+                  className="w-full rounded-none font-light text-muted-foreground hover:text-foreground"
+                  size="sm"
                   onClick={onClose}
                   asChild
                 >
-                  <Link to="/category/shop">
-                    Continue Shopping
-                  </Link>
+                  <Link to="/category/shop">Continue Shopping</Link>
                 </Button>
               </div>
             </>
