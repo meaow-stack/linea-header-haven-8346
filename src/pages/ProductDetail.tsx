@@ -1,9 +1,11 @@
 import { useParams, Link } from "react-router-dom";
+import { useEffect } from "react";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import ProductImageGallery from "../components/product/ProductImageGallery";
 import ProductInfo from "../components/product/ProductInfo";
 import ProductDescription from "../components/product/ProductDescription";
+import ProductQA from "../components/product/ProductQA";
 import ProductCarousel from "../components/content/ProductCarousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -15,11 +17,26 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useProduct, useProductsByCategory } from "@/hooks/useProducts";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 
 const ProductDetail = () => {
   const { productId } = useParams();
   const { product, isLoading } = useProduct(productId);
   const { products: related } = useProductsByCategory(product?.category, product?.id);
+  const { track } = useRecentlyViewed();
+
+  useEffect(() => {
+    if (product) {
+      track({
+        product_id: String(product.id),
+        product_name: product.name,
+        product_image: product.image,
+        product_price: product.priceValue,
+        product_category: product.category,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
 
   if (isLoading) {
     return (
@@ -91,6 +108,7 @@ const ProductDetail = () => {
             <div className="lg:pl-12 mt-8 lg:mt-0 lg:sticky lg:top-6 lg:h-fit">
               <ProductInfo product={product} />
               <ProductDescription product={product} />
+              <ProductQA productId={String(product.id)} />
             </div>
           </div>
         </section>
