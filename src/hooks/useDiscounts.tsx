@@ -94,8 +94,15 @@ export const useDiscounts = () => {
       order_id: orderId,
       amount_discounted: applied.amount,
     });
-    // best-effort increment on used_count
-    await supabase.rpc("increment" as any).catch(() => {});
+    // best-effort increment on used_count (ignore failures)
+    try {
+      await supabase
+        .from("discount_codes")
+        .update({ used_count: (applied.code.used_count ?? 0) + 1 })
+        .eq("id", applied.code.id);
+    } catch {
+      /* non-blocking */
+    }
   };
 
   return { applied, validate, clear, validating, recordRedemption };
