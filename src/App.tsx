@@ -16,6 +16,8 @@ import Category from "./pages/Category";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import SharedWishlist from "./pages/SharedWishlist";
 import OurStory from "./pages/about/OurStory";
 import Sustainability from "./pages/about/Sustainability";
 import SizeGuide from "./pages/about/SizeGuide";
@@ -45,6 +47,8 @@ const App = () => (
                   <Route path="/category/:category" element={<Category />} />
                   <Route path="/product/:productId" element={<ProductDetail />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/order/:orderId" element={<OrderConfirmation />} />
+                  <Route path="/share/wishlist/:userId" element={<SharedWishlist />} />
                   <Route path="/about/our-story" element={<OurStory />} />
                   <Route path="/about/sustainability" element={<Sustainability />} />
                   <Route path="/about/size-guide" element={<SizeGuide />} />
